@@ -1,0 +1,230 @@
+-- Prison Life Script for Roblox
+-- Place this in a LocalScript inside StarterGui or StarterPlayerScripts
+
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+
+-- GUI Creation
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = player:WaitForChild("PlayerGui")
+screenGui.Name = "PrisonLifeGUI"
+
+-- Main Frame
+local mainFrame = Instance.new("Frame")
+mainFrame.Parent = screenGui
+mainFrame.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+mainFrame.BorderSizePixel = 0
+mainFrame.Position = UDim2.new(0.5, -200, 0.5, -150)
+mainFrame.Size = UDim2.new(0, 400, 0, 300)
+mainFrame.Active = true
+mainFrame.Draggable = true
+
+-- Title
+local title = Instance.new("TextLabel")
+title.Parent = mainFrame
+title.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+title.BorderSizePixel = 0
+title.Size = UDim2.new(1, 0, 0, 30)
+title.Font = Enum.Font.SourceSansBold
+title.Text = "Prison Life Script"
+title.TextColor3 = Color3.new(1, 1, 1)
+title.TextSize = 18
+
+-- Buttons
+local buttons = {
+    {name = "God Mode", func = function() godMode() end},
+    {name = "Speed Boost", func = function() speedBoost() end},
+    {name = "Teleport", func = function() teleport() end},
+    {name = "Get Tools", func = function() getTools() end},
+    {name = "Remove Doors", func = function() removeDoors() end},
+    {name = "Kill All", func = function() killAll() end}
+}
+
+-- Create buttons
+for i, buttonInfo in ipairs(buttons) do
+    local button = Instance.new("TextButton")
+    button.Parent = mainFrame
+    button.BackgroundColor3 = Color3.fromRGB(65, 65, 65)
+    button.BorderSizePixel = 0
+    button.Position = UDim2.new(0, 10, 0, 40 + (i-1) * 40)
+    button.Size = UDim2.new(1, -20, 0, 35)
+    button.Font = Enum.Font.SourceSans
+    button.Text = buttonInfo.name
+    button.TextColor3 = Color3.new(1, 1, 1)
+    button.TextSize = 14
+    
+    button.MouseEnter:Connect(function()
+        button.BackgroundColor3 = Color3.fromRGB(85, 85, 85)
+    end)
+    
+    button.MouseLeave:Connect(function()
+        button.BackgroundColor3 = Color3.fromRGB(65, 65, 65)
+    end)
+    
+    button.MouseButton1Click:Connect(buttonInfo.func)
+end
+
+-- Functions
+function godMode()
+    if character:FindFirstChild("Humanoid") then
+        humanoid.MaxHealth = math.huge
+        humanoid.Health = math.huge
+        humanoid.Name = "Humanoid"
+        
+        -- Prevent death
+        humanoid.Died:Connect(function()
+            humanoid.Health = math.huge
+        end)
+        
+        -- Notification
+        local notification = createNotification("God Mode Activated")
+    end
+end
+
+function speedBoost()
+    if character:FindFirstChild("Humanoid") then
+        humanoid.WalkSpeed = 50
+        humanoid.JumpPower = 100
+        
+        -- Notification
+        local notification = createNotification("Speed Boost Activated")
+    end
+end
+
+function teleport()
+    -- Create teleport GUI
+    local teleportGui = Instance.new("ScreenGui")
+    teleportGui.Parent = player:WaitForChild("PlayerGui")
+    teleportGui.Name = "TeleportGUI"
+    
+    local teleportFrame = Instance.new("Frame")
+    teleportFrame.Parent = teleportGui
+    teleportFrame.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+    teleportFrame.BorderSizePixel = 0
+    teleportFrame.Position = UDim2.new(0.5, -150, 0.5, -100)
+    teleportFrame.Size = UDim2.new(0, 300, 0, 200)
+    
+    local titleLabel = Instance.new("TextLabel")
+    titleLabel.Parent = teleportFrame
+    titleLabel.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+    titleLabel.BorderSizePixel = 0
+    titleLabel.Size = UDim2.new(1, 0, 0, 30)
+    titleLabel.Font = Enum.Font.SourceSansBold
+    titleLabel.Text = "Teleport Options"
+    titleLabel.TextColor3 = Color3.new(1, 1, 1)
+    titleLabel.TextSize = 18
+    
+    -- Teleport buttons
+    local locations = {
+        {name = "Prison Yard", pos = Vector3.new(0, 0, 0)},
+        {name = "Cafeteria", pos = Vector3.new(100, 0, 100)},
+        {name = "Cells", pos = Vector3.new(-100, 0, 100)},
+        {name = "Roof", pos = Vector3.new(0, 100, 0)}
+    }
+    
+    for i, location in ipairs(locations) do
+        local button = Instance.new("TextButton")
+        button.Parent = teleportFrame
+        button.BackgroundColor3 = Color3.fromRGB(65, 65, 65)
+        button.BorderSizePixel = 0
+        button.Position = UDim2.new(0, 10, 0, 40 + (i-1) * 35)
+        button.Size = UDim2.new(1, -20, 0, 30)
+        button.Font = Enum.Font.SourceSans
+        button.Text = location.name
+        button.TextColor3 = Color3.new(1, 1, 1)
+        button.TextSize = 14
+        
+        button.MouseButton1Click:Connect(function()
+            character:MoveTo(location.pos)
+            teleportGui:Destroy()
+            createNotification("Teleported to " .. location.name)
+        end)
+    end
+    
+    -- Close button
+    local closeButton = Instance.new("TextButton")
+    closeButton.Parent = teleportFrame
+    closeButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+    closeButton.BorderSizePixel = 0
+    closeButton.Position = UDim2.new(1, -60, 0, 5)
+    closeButton.Size = UDim2.new(0, 50, 0, 20)
+    closeButton.Font = Enum.Font.SourceSans
+    closeButton.Text = "Close"
+    closeButton.TextColor3 = Color3.new(1, 1, 1)
+    closeButton.TextSize = 14
+    
+    closeButton.MouseButton1Click:Connect(function()
+        teleportGui:Destroy()
+    end)
+end
+
+function getTools()
+    -- Get all tools in the game
+    for _, obj in pairs(game:GetDescendants()) do
+        if obj:IsA("Tool") then
+            local toolClone = obj:Clone()
+            toolClone.Parent = player:Backpack
+        end
+    end
+    
+    createNotification("All tools added to inventory")
+end
+
+function removeDoors()
+    -- Remove all doors in the game
+    local removedCount = 0
+    for _, obj in pairs(game:GetDescendants()) do
+        if obj:IsA("Model") and (obj.Name:find("Door") or obj.Name:find("door")) then
+            obj:Destroy()
+            removedCount = removedCount + 1
+        end
+    end
+    
+    createNotification("Removed " .. removedCount .. " doors")
+end
+
+function killAll()
+    -- Kill all other players
+    for _, target in pairs(Players:GetPlayers()) do
+        if target ~= player then
+            local targetCharacter = target.Character
+            if targetCharacter and targetCharacter:FindFirstChild("Humanoid") then
+                targetCharacter.Humanoid.Health = 0
+            end
+        end
+    end
+    
+    createNotification("All players eliminated")
+end
+
+function createNotification(text)
+    local notification = Instance.new("ScreenGui")
+    notification.Parent = player:WaitForChild("PlayerGui")
+    notification.Name = "Notification"
+    
+    local frame = Instance.new("Frame")
+    frame.Parent = notification
+    frame.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+    frame.BorderSizePixel = 0
+    frame.Position = UDim2.new(0.5, -150, 0.8, 0)
+    frame.Size = UDim2.new(0, 300, 0, 50)
+    
+    local label = Instance.new("TextLabel")
+    label.Parent = frame
+    label.BackgroundTransparency = 1
+    label.Size = UDim2.new(1, 0, 1, 0)
+    label.Font = Enum.Font.SourceSans
+    label.Text = text
+    label.TextColor3 = Color3.new(1, 1, 1)
+    label.TextSize = 18
+    
+    -- Fade out animation
+    local tweenInfo = TweenInfo.new(3, Enum.EasingStyle.Linear, Enum.EasingDirection.In)
+    local fadeTween = TweenService:Create(frame, tweenInfo, {BackgroundTransparency = 1})
+    fadeTween:Play()
+    
+   
